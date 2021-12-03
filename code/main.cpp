@@ -1,8 +1,10 @@
-#include "Data/Block.hpp"
 #include "Data/BlockDescriptor.hpp"
 #include "Data/TextureAtlas.hpp"
 #include "Data/World.hpp"
 
+#include "UI/BlockPalette.hpp"
+#include "UI/Button.hpp"
+#include "UI/Window.hpp"
 #include "json.hpp"
 
 #include <SFML/Graphics.hpp>
@@ -107,6 +109,8 @@ int main()
 {
     World world = loadWorld();
 
+    BlockPalette blockPalette(world);
+
     sf::Vector2i mouseWPos {};
     sf::Vector2f mouseVPos {};
 
@@ -114,6 +118,7 @@ int main()
     bool lmbPressed {};
 
     sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    window.setView(sf::View({0.f,0.f,200.f,200.f}));
 
     while (window.isOpen())
     {
@@ -150,6 +155,7 @@ int main()
 
         window.clear();
         drawWorld(world, window);
+        window.draw(blockPalette);
         window.display();
     }
     return 0;
