@@ -13,7 +13,7 @@ add_compile_options(-Wall -Wextra -pedantic -Werror -Og)
 set_target_properties(
 	"${PROJECT_NAME}"
 	PROPERTIES
-	CXX_STANDARD 17
+	CXX_STANDARD 20
 	)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
