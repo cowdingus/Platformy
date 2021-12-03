@@ -83,6 +83,7 @@ inline size_t Grid2D<T>::getHeight() const
 template <typename T>
 inline size_t Grid2D<T>::toIndex(size_t x, size_t y) const
 {
+    assert(x < width && y < height);
     return y * width + x;
 }
 
