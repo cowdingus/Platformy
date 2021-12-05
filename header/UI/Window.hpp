@@ -1,24 +1,25 @@
 #pragma once
 
 #include "UI/Widget.hpp"
+#include <unordered_map>
 
 class Window : public Widget
 {
 public:
+	typedef std::shared_ptr<Window> Ptr;
+	typedef std::shared_ptr<const Window> ConstPtr;
+
+	Window();
+
+	static Window::Ptr create();
+
 	struct Properties
 	{
-		sf::Color fillColor;
-		sf::Color outlineColor;
-		float outlineThickness;
-		sf::Vector2f size;
+		sf::Color fillColor {6, 26, 66, 235};
+		sf::Color outlineColor {sf::Color::Red};
+		float outlineThickness {0};
+		sf::Vector2f size {200, 160};
 	};
-
-	const static auto type = Widget::Type::Window;
-
-	constexpr Widget::Type getType() const override
-	{
-		return type;
-	}
 
 	void setSize(sf::Vector2f size) override
 	{
@@ -31,6 +32,9 @@ public:
 	void setProperties(const Properties& props);
 	Properties getProperties() const;
 
+	void add(Widget::Ptr widget, const std::string& name);
+	void remove(const std::string& name);
+
 protected:
 	const sf::Shape& getShape() const override { return m_shape; }
 
@@ -38,23 +42,5 @@ private:
 	sf::RectangleShape m_shape;
 	Properties m_props;
 
-	std::vector<Widget> m_children;
+	std::unordered_map<std::string, Widget::Ptr> m_subwidgets;
 };
-
-inline void Window::setProperties(const Window::Properties& props)
-{
-	m_props = props;
-	m_shape.setFillColor(m_props.fillColor);
-	m_shape.setOutlineColor(m_props.outlineColor);
-	m_shape.setOutlineThickness(m_props.outlineThickness);
-	setSize(m_props.size);
-}
-
-inline Window::Properties Window::getProperties() const { return m_props; }
-
-inline void Window::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-	states.transform *= getTransform();
-	
-	target.draw(m_shape, states);
-}

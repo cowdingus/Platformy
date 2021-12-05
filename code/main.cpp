@@ -2,8 +2,8 @@
 #include "Data/TextureAtlas.hpp"
 #include "Data/World.hpp"
 
-#include "UI/BlockPalette.hpp"
 #include "UI/Button.hpp"
+#include "UI/GUIRoot.hpp"
 #include "UI/Window.hpp"
 #include "json.hpp"
 
@@ -109,7 +109,32 @@ int main()
 {
     World world = loadWorld();
 
-    BlockPalette blockPalette(world);
+    sf::Font defaultFont;
+    if (!defaultFont.loadFromFile("assets/arial.ttf"))
+    {
+        std::cerr << "Can't load arial" << std::endl;
+        return -1;
+    }
+
+    GUIRoot guiroot;
+
+    {
+        auto window = Window::create();
+        window->setProperties({
+            .fillColor = sf::Color(6, 26, 66, 235),
+            .size = {100.f, 100.f}
+        });
+        window->setPosition(200.f, 200.f);
+
+        guiroot.add(window, "BlockPalette");
+
+        auto button = Button::create();
+        button->setProperties(Button::Properties {
+            .font = &defaultFont
+        });
+
+        window->add(button, "simple_button");
+    }
 
     sf::Vector2i mouseWPos {};
     sf::Vector2f mouseVPos {};
@@ -117,8 +142,8 @@ int main()
     bool rmbPressed {};
     bool lmbPressed {};
 
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    window.setView(sf::View({0.f,0.f,200.f,200.f}));
+    sf::RenderWindow window(sf::VideoMode(683, 736), "SFML works!");
+    window.setView(sf::View({0.f, 0.f, 683, 736}));
 
     while (window.isOpen())
     {
@@ -155,7 +180,7 @@ int main()
 
         window.clear();
         drawWorld(world, window);
-        window.draw(blockPalette);
+        window.draw(guiroot);
         window.display();
     }
     return 0;
