@@ -32,8 +32,10 @@ public:
 
 	void setSize(sf::Vector2f size) override
 	{
-		m_shape.setSize(size);
 		m_size = size;
+
+		// The background reflects the size of the button
+		m_shape.setSize(size);
 	}
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
