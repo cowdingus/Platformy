@@ -47,6 +47,21 @@ void Button::calculateAppearance()
 	m_text.setPosition({backgroundSize.x/2.0f, backgroundSize.y/2.0f});
 }
 
+bool Button::isOnTopOfWidget(sf::Vector2f point) const
+{
+	return getGlobalBounds().contains(point);
+}
+
+sf::FloatRect Button::getGlobalBounds() const
+{
+	return getTransform().transformRect(m_shape.getGlobalBounds());
+}
+
+sf::FloatRect Button::getLocalBounds() const
+{
+	return m_shape.getLocalBounds();
+}
+
 void Button::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();

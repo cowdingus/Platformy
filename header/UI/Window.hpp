@@ -34,8 +34,10 @@ public:
 	void setProperties(const Properties& props);
 	Properties getProperties() const;
 
-protected:
-	const sf::Shape& getShape() const override { return m_shape; }
+	bool isOnTopOfWidget(sf::Vector2f pos) const override;
+
+	sf::FloatRect getGlobalBounds() const override;
+	sf::FloatRect getLocalBounds() const override;
 
 private:
 	sf::RectangleShape m_shape;

@@ -29,6 +29,21 @@ void Window::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	}
 }
 
+bool Window::isOnTopOfWidget(sf::Vector2f pos) const
+{
+	return getGlobalBounds().contains(pos);
+}
+
+sf::FloatRect Window::getGlobalBounds() const
+{
+	return getTransform().transformRect(m_shape.getGlobalBounds());
+}
+
+sf::FloatRect Window::getLocalBounds() const
+{
+	return m_shape.getLocalBounds();
+}
+
 Window::Ptr Window::create()
 {
 	return std::make_shared<Window>();

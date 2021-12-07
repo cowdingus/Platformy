@@ -16,15 +16,8 @@ public:
 	virtual void setSize(sf::Vector2f size) { m_size = size; }
 	sf::Vector2f getSize() const { return m_size; }
 
-	virtual sf::FloatRect getGlobalBounds() const
-	{
-		return getTransform().transformRect(getShape().getGlobalBounds());
-	}
-
-	virtual sf::FloatRect getLocalBounds() const
-	{
-		return getShape().getLocalBounds();
-	}
+	virtual sf::FloatRect getGlobalBounds() const = 0;
+	virtual sf::FloatRect getLocalBounds() const = 0;
 
 	template <typename T>
 	std::shared_ptr<T> cast();
@@ -32,14 +25,16 @@ public:
 	template <typename T>
 	std::shared_ptr<const T> cast() const;
 
-	std::function<void()> onMouseClick {};
-	std::function<void()> onMouseHover {};
-	std::function<void()> onDepressed {};
+	virtual bool isOnTopOfWidget(sf::Vector2f point) const = 0;
+
+	virtual void onMouseClick(sf::Mouse::Button mb) {};
+	virtual void onMousePress(sf::Mouse::Button btn, sf::Vector2f pos) {};
+	virtual void onMouseRelease(sf::Mouse::Button btn, sf::Vector2f position) {};
+	virtual void onMouseEnter() {};
+	virtual void onMouseLeave() {};
 
 protected:
 	sf::Vector2f m_size;
-
-	virtual const sf::Shape& getShape() const = 0;
 };
 
 template <typename T>

@@ -57,7 +57,7 @@ Widget::Ptr GUIRoot::getWidgetBelowPosition(sf::Vector2f position)
 {
 	for (const auto& [name, widget] : m_widgets)
 	{
-		if (widget->getGlobalBounds().contains(position))
+		if (widget->isOnTopOfWidget(position))
 		{
 			return widget;
 		}
