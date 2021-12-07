@@ -107,6 +107,9 @@ std::tuple<size_t, size_t> toBlockPosition(sf::Vector2f pos)
 
 int main()
 {
+    sf::RenderWindow window(sf::VideoMode(683, 736), "SFML works!");
+    window.setView(sf::View({0.f, 0.f, 683, 736}));
+
     World world = loadWorld();
 
     sf::Font defaultFont;
@@ -116,7 +119,7 @@ int main()
         return -1;
     }
 
-    GUIRoot guiroot;
+    GUIRoot guiroot(window);
 
     {
         auto window = Window::create();
@@ -142,14 +145,13 @@ int main()
     bool rmbPressed {};
     bool lmbPressed {};
 
-    sf::RenderWindow window(sf::VideoMode(683, 736), "SFML works!");
-    window.setView(sf::View({0.f, 0.f, 683, 736}));
-
     while (window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
         {
+            bool ignoreMousePress = guiroot.handleEvent(event);
+
             switch (event.type)
             {
                 case sf::Event::Closed:
@@ -160,6 +162,7 @@ int main()
                     mouseVPos = window.mapPixelToCoords(mouseWPos);
                     break;
                 case sf::Event::MouseButtonPressed:
+                    if (ignoreMousePress) break;
                     if (event.mouseButton.button == sf::Mouse::Left) lmbPressed = true;
                     else if (event.mouseButton.button == sf::Mouse::Right) rmbPressed = true;
 
