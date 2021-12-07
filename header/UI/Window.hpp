@@ -1,9 +1,11 @@
 #pragma once
 
+#include "UI/Container.hpp"
 #include "UI/Widget.hpp"
+
 #include <unordered_map>
 
-class Window : public Widget
+class Window : public Container
 {
 public:
 	typedef std::shared_ptr<Window> Ptr;
@@ -32,15 +34,10 @@ public:
 	void setProperties(const Properties& props);
 	Properties getProperties() const;
 
-	void add(Widget::Ptr widget, const std::string& name);
-	void remove(const std::string& name);
-
 protected:
 	const sf::Shape& getShape() const override { return m_shape; }
 
 private:
 	sf::RectangleShape m_shape;
 	Properties m_props;
-
-	std::unordered_map<std::string, Widget::Ptr> m_subwidgets;
 };

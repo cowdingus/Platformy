@@ -33,13 +33,3 @@ Window::Ptr Window::create()
 {
 	return std::make_shared<Window>();
 }
-
-void Window::add(Widget::Ptr widget, const std::string& name)
-{
-	m_subwidgets.emplace(std::make_pair(name, widget));
-}
-
-void Window::remove(const std::string& name)
-{
-	m_subwidgets.erase(name);
-}
