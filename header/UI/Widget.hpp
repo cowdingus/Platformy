@@ -19,6 +19,9 @@ public:
 	virtual sf::FloatRect getGlobalBounds() const = 0;
 	virtual sf::FloatRect getLocalBounds() const = 0;
 
+	// Returns true if widget inherits Container class, defaults to false
+	virtual bool isContainer() const { return false; }
+
 	template <typename T>
 	std::shared_ptr<T> cast();
 
@@ -27,7 +30,7 @@ public:
 
 	virtual bool isOnTopOfWidget(sf::Vector2f point) const = 0;
 
-	virtual void onMouseClick(sf::Mouse::Button mb) {};
+	virtual void onClick(sf::Mouse::Button mb) {};
 	virtual void onMousePress(sf::Mouse::Button btn, sf::Vector2f pos) {};
 	virtual void onMouseRelease(sf::Mouse::Button btn, sf::Vector2f position) {};
 	virtual void onMouseEnter() {};

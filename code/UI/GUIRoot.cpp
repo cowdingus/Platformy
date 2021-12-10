@@ -1,5 +1,7 @@
 #include "UI/GUIRoot.hpp"
 
+#include "UI/Container.hpp"
+
 #include <iostream>
 
 GUIRoot::GUIRoot(sf::RenderTarget& target)
@@ -32,12 +34,13 @@ bool GUIRoot::handleEvent(const sf::Event& event)
 {
 	switch (event.type)
 	{
-		case sf::Event::MouseButtonPressed: {
-			sf::Vector2f mousePosition = m_window->mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
-			auto pressedWidget = getWidgetBelowPosition(mousePosition);
-			std::cout << "Widget pressed" << pressedWidget << std::endl;
-			return true;
-			break;
+		case sf::Event::MouseButtonPressed:
+		{
+			return onMousePress(event.mouseButton);
+		}
+		case sf::Event::MouseButtonReleased:
+		{
+			return onMouseRelease(event.mouseButton);
 		}
 		default: break;
 	}
@@ -57,11 +60,54 @@ Widget::Ptr GUIRoot::getWidgetBelowPosition(sf::Vector2f position)
 {
 	for (const auto& [name, widget] : m_widgets)
 	{
-		if (widget->isOnTopOfWidget(position))
-		{
-			return widget;
-		}
+		// Skip if not on top
+		if (!widget->isOnTopOfWidget(position)) continue;
+
+		// Immediately return if widget doesn't have subwidgets
+		if (!widget->isContainer()) return widget;
+
+		// Recursively get to the bottom of the container
+		auto container = widget->cast<Container>();
+		auto subwidget = container->getWidgetBelowPosition(position);
+
+		return subwidget ? subwidget : widget;
 	}
 
 	return {nullptr};
+}
+
+bool GUIRoot::onMousePress(const sf::Event::MouseButtonEvent& e)
+{
+	auto pos = m_window->mapPixelToCoords({e.x, e.y});
+	auto pressedWidget = getWidgetBelowPosition(pos);
+
+	m_currentlyPressedWidget = pressedWidget;
+
+	std::cout << "[GUIRoot::handleEvent]: Press, onWidget: " << pressedWidget << std::endl;
+
+	return static_cast<bool>(pressedWidget);
+}
+
+bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
+{
+	auto pos = m_window->mapPixelToCoords({e.x, e.y});
+
+	// Checks if mouse button is released on the same widget as the previously pressed one
+	auto onWidget = getWidgetBelowPosition(pos);
+	if (m_currentlyPressedWidget == onWidget)
+	{
+		onClick(e, m_currentlyPressedWidget);
+	}
+
+	m_currentlyPressedWidget = {nullptr};
+
+	std::cout << "[GUIRoot::handleEvent]: Release, onWidget: " << onWidget << std::endl;
+
+	return static_cast<bool>(onWidget);
+}
+
+void GUIRoot::onClick(const sf::Event::MouseButtonEvent& e, Widget::Ptr widget)
+{
+	auto pos = m_window->mapPixelToCoords({e.x, e.y});
+	widget->onClick(e.button);
 }

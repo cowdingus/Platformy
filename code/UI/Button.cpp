@@ -62,6 +62,16 @@ sf::FloatRect Button::getLocalBounds() const
 	return m_shape.getLocalBounds();
 }
 
+void Button::setOnClick(const std::function<void ()>& callback)
+{
+	m_onClickCallback = callback;
+}
+
+void Button::onClick(sf::Mouse::Button mb)
+{
+	if (mb == sf::Mouse::Left && m_onClickCallback) m_onClickCallback();
+}
+
 void Button::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();

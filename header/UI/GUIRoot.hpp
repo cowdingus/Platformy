@@ -22,10 +22,15 @@ public:
 protected:
 	Widget::Ptr getWidgetBelowPosition(sf::Vector2f mousePosition);
 
+	bool onMousePress(const sf::Event::MouseButtonEvent& e);
+	bool onMouseRelease(const sf::Event::MouseButtonEvent& e);
+
+	void onClick(const sf::Event::MouseButtonEvent& e, Widget::Ptr widget);
+
 private:
 	std::unordered_map<std::string, Widget::Ptr> m_widgets;
 
 	sf::RenderTarget* m_window {nullptr};
 
-	Widget::Ptr m_depressedWidget;
+	Widget::Ptr m_currentlyPressedWidget {nullptr};
 };

@@ -135,6 +135,7 @@ int main()
         button->setProperties(Button::Properties {
             .font = &defaultFont
         });
+        button->setOnClick([](){std::cout << "simple_button clicked" << std::endl;});
 
         window->add(button, "simple_button");
     }

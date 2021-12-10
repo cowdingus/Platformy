@@ -48,12 +48,18 @@ public:
 	sf::FloatRect getGlobalBounds() const override;
 	sf::FloatRect getLocalBounds() const override;
 
+	void setOnClick(const std::function<void()>& callback);
+
+	void onClick(sf::Mouse::Button mb) override;
+
 protected:
 	void calculateAppearance();
 
 private:
 	sf::RectangleShape m_shape;
 	sf::Text m_text;
+
+	std::function<void()> m_onClickCallback {nullptr};
 
 	Properties m_props;
 };
