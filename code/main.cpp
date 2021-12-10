@@ -177,8 +177,7 @@ int main()
         if (lmbPressed)
         {
             auto [x, y] = toBlockPosition(mouseVPos);
-            std::cout << x << "," << y << std::endl;
-            placeBlock(world, 0, x, y);
+            if (x < world.map.getWidth() && y < world.map.getHeight()) placeBlock(world, 0, x, y);
             lmbPressed = false;
         }
 

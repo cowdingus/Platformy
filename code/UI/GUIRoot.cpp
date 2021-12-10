@@ -93,7 +93,7 @@ bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
 
 	// Checks if mouse button is released on the same widget as the previously pressed one
 	auto onWidget = getWidgetBelowPosition(pos);
-	if (m_currentlyPressedWidget == onWidget)
+	if (m_currentlyPressedWidget && m_currentlyPressedWidget == onWidget)
 	{
 		onClick(pos, e.button, m_currentlyPressedWidget);
 	}
