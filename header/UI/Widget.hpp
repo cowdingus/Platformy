@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <SFML/Graphics/Transformable.hpp>
 #include <type_traits>
 #include <cassert>
 #include <memory>
@@ -42,8 +41,18 @@ public:
 	virtual void onOutOfFocus() {};
 	virtual void onTextEnter(sf::Uint32 unicode) {};
 
+	// internal
+	void setRoot(class GUIRoot* root) { m_root = root; }
+
 protected:
 	sf::Vector2f m_size;
+
+	class GUIRoot* m_root {nullptr};
+
+private:
+	using sf::Transformable::getRotation;
+	using sf::Transformable::setRotation;
+	using sf::Transformable::rotate;
 };
 
 template <typename T>

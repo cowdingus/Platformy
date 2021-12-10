@@ -13,10 +13,12 @@ GUIRoot::GUIRoot(sf::RenderTarget& target)
 void GUIRoot::add(Widget::Ptr widget, const std::string& name)
 {
 	m_widgets.emplace(std::make_pair(name, widget));
+	widget->setRoot(this);
 }
 
 void GUIRoot::remove(const std::string& name)
 {
+	m_widgets.at(name)->setRoot(nullptr);
 	m_widgets.erase(name);
 }
 
