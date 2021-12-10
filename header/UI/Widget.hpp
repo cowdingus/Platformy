@@ -40,6 +40,7 @@ public:
 	virtual void onMouseLeave(sf::Vector2f pos) {};
 	virtual void onFocus() {};
 	virtual void onOutOfFocus() {};
+	virtual void onTextEnter(sf::Uint32 unicode) {};
 
 protected:
 	sf::Vector2f m_size;

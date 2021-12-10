@@ -35,13 +35,11 @@ bool GUIRoot::handleEvent(const sf::Event& event)
 	switch (event.type)
 	{
 		case sf::Event::MouseButtonPressed:
-		{
 			return onMousePress(event.mouseButton);
-		}
 		case sf::Event::MouseButtonReleased:
-		{
 			return onMouseRelease(event.mouseButton);
-		}
+		case sf::Event::TextEntered:
+			return onTextEnter(event.text);
 		default: break;
 	}
 
@@ -105,6 +103,19 @@ bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
 	std::cout << "[GUIRoot::onMouseRelease]: Release, onWidget: " << onWidget << std::endl;
 
 	return static_cast<bool>(onWidget);
+}
+
+bool GUIRoot::onTextEnter(const sf::Event::TextEvent& e)
+{
+	if (m_currentlyFocusedWidget)
+	{
+		std::cout << "[GUIRoot::onTextEnter]: Enter, onWidget: " << m_currentlyFocusedWidget
+			<< " unicode: " << e.unicode << std::endl;
+		m_currentlyFocusedWidget->onTextEnter(e.unicode);
+		return true;
+	}
+
+	return false;
 }
 
 void GUIRoot::onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget)
