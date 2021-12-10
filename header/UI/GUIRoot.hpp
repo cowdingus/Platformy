@@ -25,7 +25,8 @@ protected:
 	bool onMousePress(const sf::Event::MouseButtonEvent& e);
 	bool onMouseRelease(const sf::Event::MouseButtonEvent& e);
 
-	void onClick(const sf::Event::MouseButtonEvent& e, Widget::Ptr widget);
+	void onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget);
+	void onFocusChange(Widget::Ptr newFocus);
 
 private:
 	std::unordered_map<std::string, Widget::Ptr> m_widgets;
@@ -33,4 +34,5 @@ private:
 	sf::RenderTarget* m_window {nullptr};
 
 	Widget::Ptr m_currentlyPressedWidget {nullptr};
+	Widget::Ptr m_currentlyFocusedWidget {nullptr};
 };

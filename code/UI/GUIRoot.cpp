@@ -79,13 +79,14 @@ Widget::Ptr GUIRoot::getWidgetBelowPosition(sf::Vector2f position)
 bool GUIRoot::onMousePress(const sf::Event::MouseButtonEvent& e)
 {
 	auto pos = m_window->mapPixelToCoords({e.x, e.y});
-	auto pressedWidget = getWidgetBelowPosition(pos);
 
-	m_currentlyPressedWidget = pressedWidget;
+	m_currentlyPressedWidget = getWidgetBelowPosition(pos);
 
-	std::cout << "[GUIRoot::handleEvent]: Press, onWidget: " << pressedWidget << std::endl;
+	std::cout << "[GUIRoot::onMousePress]: Press, onWidget: " << m_currentlyPressedWidget << std::endl;
 
-	return static_cast<bool>(pressedWidget);
+	if (m_currentlyPressedWidget != m_currentlyFocusedWidget) onFocusChange(m_currentlyPressedWidget);
+
+	return static_cast<bool>(m_currentlyPressedWidget);
 }
 
 bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
@@ -96,18 +97,44 @@ bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
 	auto onWidget = getWidgetBelowPosition(pos);
 	if (m_currentlyPressedWidget == onWidget)
 	{
-		onClick(e, m_currentlyPressedWidget);
+		onClick(pos, e.button, m_currentlyPressedWidget);
 	}
 
 	m_currentlyPressedWidget = {nullptr};
 
-	std::cout << "[GUIRoot::handleEvent]: Release, onWidget: " << onWidget << std::endl;
+	std::cout << "[GUIRoot::onMouseRelease]: Release, onWidget: " << onWidget << std::endl;
 
 	return static_cast<bool>(onWidget);
 }
 
-void GUIRoot::onClick(const sf::Event::MouseButtonEvent& e, Widget::Ptr widget)
+void GUIRoot::onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget)
 {
-	auto pos = m_window->mapPixelToCoords({e.x, e.y});
-	widget->onClick(e.button);
+	widget->onClick(pos, btn);
+}
+
+void GUIRoot::onFocusChange(Widget::Ptr widgetToFocus)
+{
+	// TODO(zndf): Fix the edge case when currently focused widget became unfocusable
+
+	// Clear focus if user pressed the void or a unfocusable widget
+	if (!widgetToFocus || !widgetToFocus->focusable())
+	{
+		if (m_currentlyFocusedWidget) m_currentlyFocusedWidget->onOutOfFocus();
+		m_currentlyFocusedWidget = nullptr;
+		std::cout << "[GUIRoot::onFocusChange]: Unfocused" << std::endl;
+	}
+
+	// Change focus if pressed widget is not the same widget as the currently focused one
+	// and it is focusable
+	if (m_currentlyFocusedWidget != widgetToFocus && widgetToFocus->focusable())
+	{
+		auto m_previouslyFocusedWidget = m_currentlyFocusedWidget;
+
+		if (m_currentlyFocusedWidget) m_currentlyFocusedWidget->onOutOfFocus();
+		m_currentlyFocusedWidget = widgetToFocus;
+		m_currentlyFocusedWidget->onFocus();
+
+		std::cout << "[GUIRoot::onFocusChange]: Changed focus, from: "
+			<< m_previouslyFocusedWidget << " to: " << m_currentlyFocusedWidget << std::endl;
+	}
 }

@@ -22,6 +22,9 @@ public:
 	// Returns true if widget inherits Container class, defaults to false
 	virtual bool isContainer() const { return false; }
 
+	// Returns true if widget is focusable, defaults to true
+	virtual bool focusable() const { return true; }
+
 	template <typename T>
 	std::shared_ptr<T> cast();
 
@@ -30,11 +33,13 @@ public:
 
 	virtual bool isOnTopOfWidget(sf::Vector2f point) const = 0;
 
-	virtual void onClick(sf::Mouse::Button mb) {};
-	virtual void onMousePress(sf::Mouse::Button btn, sf::Vector2f pos) {};
-	virtual void onMouseRelease(sf::Mouse::Button btn, sf::Vector2f position) {};
-	virtual void onMouseEnter() {};
-	virtual void onMouseLeave() {};
+	virtual void onClick(sf::Vector2f pos, sf::Mouse::Button btn) {};
+	virtual void onMousePress(sf::Vector2f pos, sf::Mouse::Button btn) {};
+	virtual void onMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn) {};
+	virtual void onMouseEnter(sf::Vector2f pos) {};
+	virtual void onMouseLeave(sf::Vector2f pos) {};
+	virtual void onFocus() {};
+	virtual void onOutOfFocus() {};
 
 protected:
 	sf::Vector2f m_size;

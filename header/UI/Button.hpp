@@ -50,7 +50,7 @@ public:
 
 	void setOnClick(const std::function<void()>& callback);
 
-	void onClick(sf::Mouse::Button mb) override;
+	void onClick(sf::Vector2f pos, sf::Mouse::Button btn) override;
 
 protected:
 	void calculateAppearance();
