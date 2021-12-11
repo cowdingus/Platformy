@@ -13,6 +13,7 @@ GUIRoot::GUIRoot(sf::RenderTarget& target)
 void GUIRoot::add(Widget::Ptr widget, const std::string& name)
 {
 	m_widgets.emplace(std::make_pair(name, widget));
+	widget->setName(name);
 	widget->setRoot(this);
 }
 

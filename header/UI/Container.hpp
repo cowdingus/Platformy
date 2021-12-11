@@ -15,6 +15,7 @@ public:
 	Widget::ConstPtr get(const std::string& name) const;
 
 	bool isContainer() const override;
+	void setRoot(class GUIRoot* root) override;
 
 	Widget::Ptr getWidgetBelowPosition(sf::Vector2f position) const;
 

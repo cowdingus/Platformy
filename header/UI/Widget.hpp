@@ -6,11 +6,16 @@
 #include <cassert>
 #include <memory>
 
+class GUIRoot;
+class Container;
+
 class Widget : public sf::Drawable, public sf::Transformable, public std::enable_shared_from_this<Widget>
 {
 public:
 	typedef std::shared_ptr<Widget> Ptr;
 	typedef std::shared_ptr<const Widget> ConstPtr;
+
+	const std::string& getName() { return m_name; }
 
 	virtual void setSize(sf::Vector2f size) { m_size = size; }
 	sf::Vector2f getSize() const { return m_size; }
@@ -42,12 +47,31 @@ public:
 	virtual void onTextEnter(sf::Uint32 unicode) {};
 
 	// internal
-	void setRoot(class GUIRoot* root) { m_root = root; }
+	virtual void onAttachToRoot() {};
+	virtual void onDetachFromRoot() {};
+
+	// internal
+	virtual void onAttachToParent() {};
+	virtual void onDetachFromParent() {};
+
+	// internal
+	virtual void setRoot(GUIRoot* root) { m_root = root; }
+	GUIRoot* getRoot() const { return m_root; }
+
+	// internal
+	void setParent(Container* parent) { m_parent = parent; }
+	Container* getParent() const { return m_parent; }
+
+	// internal
+	void setName(const std::string& name) { m_name = name; }
 
 protected:
 	sf::Vector2f m_size;
 
-	class GUIRoot* m_root {nullptr};
+	GUIRoot* m_root {nullptr};
+	Container* m_parent {nullptr};
+
+	std::string m_name = "_unnamed_widget";
 
 private:
 	using sf::Transformable::getRotation;
