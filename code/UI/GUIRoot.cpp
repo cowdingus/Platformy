@@ -8,105 +8,32 @@
 GUIRoot::GUIRoot(sf::RenderTarget& target)
 	: m_window(&target)
 {
-
+	m_container.setName("_gui_root");
 }
 
 void GUIRoot::add(Widget::Ptr widget, const std::string& name)
 {
-	m_widgets.push_back(widget);
-	widget->setName(name);
-	widget->setRoot(this);
-	widget->onAttachToRoot();
+	m_container.add(widget, name);
 }
 
 void GUIRoot::remove(Widget::Ptr widget)
 {
-	auto i = std::begin(m_widgets);
-
-	while (i != std::end(m_widgets))
-	{
-		if ((*i) == widget)
-		{
-			(*i)->setRoot(nullptr);
-			(*i)->onDetachFromRoot();
-			m_widgets.erase(i);
-			return;
-		}
-
-		if ((*i)->isContainer())
-		{
-			auto container = std::static_pointer_cast<Container>(*i);
-			container->remove(widget);
-		}
-
-		++i;
-	}
-
-	throw NoSuchWidgetException(widget.get(), "_gui_root");
+	m_container.remove(widget);
 }
 
 void GUIRoot::remove(const std::string& name)
 {
-	try
-	{
-		remove(get(name));
-	}
-	catch(NoSuchWidgetException& e)
-	{
-		throw NoSuchWidgetException(name, "_gui_root");
-	}
+	m_container.remove(name);
 }
 
 Widget::Ptr GUIRoot::get(const std::string& name)
 {
-	// Search for immediate child with that name
-	for (const auto& widget : m_widgets)
-	{
-		if (widget->getName() == name)
-		{
-			return widget;
-		}
-	}
-
-	// Recursively search for subchildren with that name
-	for (const auto& widget : m_widgets)
-	{
-		if (widget->isContainer())
-		{
-			auto container = std::static_pointer_cast<Container>(widget);
-			auto subwidget = container->get(name);
-
-			if (subwidget) return subwidget;
-		}
-	}
-
-	return {nullptr};
+	return m_container.get(name);
 }
 
 Widget::ConstPtr GUIRoot::get(const std::string& name) const
 {
-	// Search for immediate child with that name
-	for (const auto& widget : m_widgets)
-	{
-		if (widget->getName() == name)
-		{
-			return widget;
-		}
-	}
-
-	// Recursively search for subchildren with that name
-	for (const auto& widget : m_widgets)
-	{
-		if (widget->isContainer())
-		{
-			auto container = std::static_pointer_cast<Container>(widget);
-			auto subwidget = container->get(name);
-
-			if (subwidget) return subwidget;
-		}
-	}
-
-	return {nullptr};
+	return m_container.get(name);
 }
 
 bool GUIRoot::handleEvent(const sf::Event& event)
@@ -127,30 +54,12 @@ bool GUIRoot::handleEvent(const sf::Event& event)
 
 void GUIRoot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	for (const auto& widget : m_widgets)
-	{
-		target.draw(*widget);
-	}
+	target.draw(m_container, states);
 }
 
 Widget::Ptr GUIRoot::getWidgetBelowPosition(sf::Vector2f position)
 {
-	for (const auto& widget : m_widgets)
-	{
-		// Skip if not on top
-		if (!widget->isOnTopOfWidget(position)) continue;
-
-		// Immediately return if widget doesn't have subwidgets
-		if (!widget->isContainer()) return widget;
-
-		// Recursively get to the bottom of the container
-		auto container = std::static_pointer_cast<Container>(widget);
-		auto subwidget = container->getWidgetBelowPosition(position);
-
-		return subwidget ? subwidget : widget;
-	}
-
-	return {nullptr};
+	return m_container.getWidgetBelowPosition(position);
 }
 
 bool GUIRoot::onMousePress(const sf::Event::MouseButtonEvent& e)

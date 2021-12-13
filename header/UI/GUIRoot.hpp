@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Widget.hpp"
+#include "UI/Group.hpp"
 
 #include <vector>
 #include <string>
@@ -31,7 +32,7 @@ protected:
 	void onFocusChange(Widget::Ptr newFocus);
 
 private:
-	std::vector<Widget::Ptr> m_widgets;
+	Group m_container;
 
 	sf::RenderTarget* m_window {nullptr};
 
