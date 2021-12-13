@@ -23,7 +23,7 @@ void Window::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 	target.draw(m_shape, states);
 
-	for (const auto& [name, widget] : m_subwidgets)
+	for (const auto& widget : m_subwidgets)
 	{
 		target.draw(*widget, states);
 	}

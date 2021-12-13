@@ -2,7 +2,7 @@
 
 #include "Widget.hpp"
 
-#include <unordered_map>
+#include <vector>
 #include <string>
 
 class GUIRoot : public sf::Drawable
@@ -11,6 +11,7 @@ public:
 	GUIRoot(sf::RenderTarget& target);
 
 	void add(Widget::Ptr widget, const std::string& name);
+	void remove(Widget::Ptr widget);
 	void remove(const std::string& name);
 
 	Widget::Ptr get(const std::string& name);
@@ -30,7 +31,7 @@ protected:
 	void onFocusChange(Widget::Ptr newFocus);
 
 private:
-	std::unordered_map<std::string, Widget::Ptr> m_widgets;
+	std::vector<Widget::Ptr> m_widgets;
 
 	sf::RenderTarget* m_window {nullptr};
 
