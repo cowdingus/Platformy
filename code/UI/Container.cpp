@@ -6,10 +6,12 @@
 
 void Container::add(Widget::Ptr widget, const std::string& name)
 {
-	m_subwidgets.push_back(widget);
+	widget->setName(name);
 	widget->setParent(this);
 	widget->setRoot(m_root);
-	widget->setName(name);
+	m_subwidgets.push_back(widget);
+	widget->onAttachToRoot();
+	widget->onAttachToParent();
 }
 
 void Container::remove(Widget::Ptr widget)

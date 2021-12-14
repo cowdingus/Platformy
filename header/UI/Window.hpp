@@ -2,6 +2,7 @@
 
 #include "UI/Container.hpp"
 #include "UI/Widget.hpp"
+#include "UI/Button.hpp"
 
 #include <unordered_map>
 
@@ -23,11 +24,7 @@ public:
 		sf::Vector2f size {200, 160};
 	};
 
-	void setSize(sf::Vector2f size) override
-	{
-		m_shape.setSize(size);
-		m_size = size;
-	}
+	void setSize(sf::Vector2f size) override;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -39,7 +36,12 @@ public:
 	sf::FloatRect getGlobalBounds() const override;
 	sf::FloatRect getLocalBounds() const override;
 
+protected:
+	void calculateAppearance();
+
 private:
 	sf::RectangleShape m_shape;
+	Button::Ptr m_closeButton {nullptr};
+
 	Properties m_props;
 };

@@ -9,6 +9,7 @@ GUIRoot::GUIRoot(sf::RenderTarget& target)
 	: m_window(&target)
 {
 	m_container.setName("_gui_root");
+	m_container.setRoot(this);
 }
 
 void GUIRoot::add(Widget::Ptr widget, const std::string& name)
