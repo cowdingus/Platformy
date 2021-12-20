@@ -4,6 +4,7 @@
 #include "UI/Exceptions/NoSuchWidgetException.hpp"
 
 #include <iostream>
+#include <memory>
 
 GUIRoot::GUIRoot(sf::RenderTarget& target)
 	: m_window(&target)
@@ -47,6 +48,8 @@ bool GUIRoot::handleEvent(const sf::Event& event)
 			return onMouseRelease(event.mouseButton);
 		case sf::Event::TextEntered:
 			return onTextEnter(event.text);
+		case sf::Event::MouseMoved:
+			return onMouseMove(event.mouseMove);
 		default: break;
 	}
 
@@ -69,6 +72,15 @@ bool GUIRoot::onMousePress(const sf::Event::MouseButtonEvent& e)
 
 	m_currentlyPressedWidget = getWidgetBelowPosition(pos);
 
+	if (!m_currentlyPressedWidget) return false;
+
+	m_currentlyPressedWidget->onMousePress(pos, e.button);
+
+	if (m_currentlyPressedWidget->isContainer())
+	{
+		std::static_pointer_cast<Container>(m_currentlyPressedWidget)->propagateOnMousePress(pos, e.button);
+	}
+
 	std::cout << "[GUIRoot::onMousePress]: Press, onWidget: " << m_currentlyPressedWidget << std::endl;
 
 	if (m_currentlyPressedWidget != m_currentlyFocusedWidget) onFocusChange(m_currentlyPressedWidget);
@@ -80,12 +92,15 @@ bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
 {
 	auto pos = m_window->mapPixelToCoords({e.x, e.y});
 
-	// Checks if mouse button is released on the same widget as the previously pressed one
+	// Trigger onClick
 	auto onWidget = getWidgetBelowPosition(pos);
 	if (m_currentlyPressedWidget && m_currentlyPressedWidget == onWidget)
 	{
 		onClick(pos, e.button, m_currentlyPressedWidget);
 	}
+
+	// Propagate onMouseRelease
+	m_container.propagateOnMouseRelease(pos, e.button);
 
 	m_currentlyPressedWidget = {nullptr};
 
@@ -103,6 +118,19 @@ bool GUIRoot::onTextEnter(const sf::Event::TextEvent& e)
 		m_currentlyFocusedWidget->onTextEnter(e.unicode);
 		return true;
 	}
+
+	return false;
+}
+
+bool GUIRoot::onMouseMove(const sf::Event::MouseMoveEvent& e)
+{
+	auto deltaPos = m_window->mapPixelToCoords({e.x, e.y}) - m_currentMousePosition;
+	m_currentMousePosition = m_window->mapPixelToCoords({e.x, e.y});
+
+	std::cout << "[GUIRoot::onMouseMove]: Move, newPos: " << e.x << ", " << e.y << std::endl;
+
+	m_container.onMouseMove(m_currentMousePosition, deltaPos);
+	m_container.propagateOnMouseMove(m_currentMousePosition, deltaPos);
 
 	return false;
 }

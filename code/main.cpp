@@ -108,7 +108,7 @@ std::tuple<size_t, size_t> toBlockPosition(sf::Vector2f pos)
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(683, 736), "SFML works!");
-    window.setView(sf::View({0.f, 0.f, 683, 736}));
+	window.setView(sf::View({0, 0, (float) window.getSize().x, (float) window.getSize().y}));
 
     World world = loadWorld();
 
@@ -127,7 +127,7 @@ int main()
             .fillColor = sf::Color(6, 26, 66, 235),
             .size = {100.f, 100.f}
         });
-        window->setPosition(200.f, 200.f);
+        window->setPosition({200.f, 200.f});
 
         guiroot.add(window, "BlockPalette");
 

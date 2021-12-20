@@ -36,12 +36,20 @@ public:
 	sf::FloatRect getGlobalBounds() const override;
 	sf::FloatRect getLocalBounds() const override;
 
+	void onMousePress(sf::Vector2f pos, sf::Mouse::Button btn) override;
+	void onMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn) override;
+	void onMouseMove(sf::Vector2f pos, sf::Vector2f deltaPos) override;
+
 protected:
 	void calculateAppearance();
+	bool isOnTitleBar(sf::Vector2f pos) const;
 
 private:
 	sf::RectangleShape m_shape;
+	sf::RectangleShape m_titleBarShape;
 	Button::Ptr m_closeButton {nullptr};
 
 	Properties m_props;
+
+	bool m_titleBarOnDrag = false;
 };

@@ -23,7 +23,7 @@ public:
 
 inline void Group::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	states.transform *= getTransform();
+	states.transform.translate(m_position);
 
 	for (const auto& widget : m_subwidgets)
 	{
@@ -33,7 +33,7 @@ inline void Group::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
 inline bool Group::isOnTopOfWidget(sf::Vector2f pos) const
 {
-	auto localPos = getInverseTransform().transformPoint(pos);
+	auto localPos = toSubwidgetSpace(pos);
 
 	for (const auto& widget : m_subwidgets)
 	{
@@ -47,7 +47,7 @@ inline bool Group::isOnTopOfWidget(sf::Vector2f pos) const
 
 inline sf::FloatRect Group::getGlobalBounds() const
 {
-	return getTransform().transformRect({0, 0, m_size.x, m_size.y});
+	return {m_position.x, m_position.y, m_size.x, m_size.y};
 }
 
 inline sf::FloatRect Group::getLocalBounds() const

@@ -3,18 +3,22 @@
 #include "UI/Button.hpp"
 #include "UI/Defaults.hpp"
 #include "UI/GUIRoot.hpp"
+#include <iostream>
 
 Window::Window()
 {
+	m_childWidgetsOffset = {0.f, 32.f};
+
 	m_closeButton = Button::create();
 
 	m_closeButton->setProperties(
 			Button::Properties {
 				.bgFillColor = sf::Color::White,
 				.bgOutlineColor = sf::Color::Black,
-				.bgOutlineThickness = 1.f,
+				.bgOutlineThickness = -1.f,
 				.automaticSizing = true,
 				.txtSize = 14.f,
+				.txtFillColor = sf::Color::Black,
 				.string = "x",
 				.font = Defaults::getDefaultFont(),
 			});
@@ -45,8 +49,15 @@ void Window::calculateAppearance()
 	assert(m_closeButton);
 
 	auto mySize = getSize();
+	auto closeButtonSize = sf::Vector2f{m_closeButton->getLocalBounds().width, m_closeButton->getLocalBounds().height};
+	auto padding = sf::Vector2f{8.f, 5.5f};
 
-	m_closeButton->setPosition({mySize.x - 32, mySize.y - 32});
+	m_titleBarShape.setSize({mySize.x, 32.f});
+	m_titleBarShape.setFillColor(sf::Color::White);
+	m_titleBarShape.setOutlineThickness(-1);
+	m_titleBarShape.setOutlineColor(sf::Color::Black);
+
+	m_closeButton->setPosition({mySize.x - padding.x - closeButtonSize.x - m_childWidgetsOffset.x, padding.y - m_childWidgetsOffset.y});
 }
 
 void Window::setSize(sf::Vector2f size)
@@ -59,9 +70,13 @@ void Window::setSize(sf::Vector2f size)
 
 void Window::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	states.transform *= getTransform();
+	states.transform.translate(m_position);
 
 	target.draw(m_shape, states);
+	target.draw(m_titleBarShape, states);
+
+	// Time to draw the subwidgets, lets apply the child widget offsets
+	states.transform.translate(m_childWidgetsOffset);
 
 	for (const auto& widget : m_subwidgets)
 	{
@@ -76,7 +91,8 @@ bool Window::isOnTopOfWidget(sf::Vector2f pos) const
 
 sf::FloatRect Window::getGlobalBounds() const
 {
-	return getTransform().transformRect(m_shape.getGlobalBounds());
+	// Avoided the use of sf::Transform because it also computes the rotation and scale, which is unneeded
+	return {m_position.x, m_position.y, m_shape.getGlobalBounds().width, m_shape.getGlobalBounds().height};
 }
 
 sf::FloatRect Window::getLocalBounds() const
@@ -87,4 +103,36 @@ sf::FloatRect Window::getLocalBounds() const
 Window::Ptr Window::create()
 {
 	return std::make_shared<Window>();
+}
+
+bool Window::isOnTitleBar(sf::Vector2f pos) const
+{
+	return 32 > pos.y && pos.y > 0;
+}
+
+void Window::onMousePress(sf::Vector2f pos, sf::Mouse::Button btn)
+{
+	pos -= m_position;
+	// TODO(zndf): Fix this not called
+	if (btn == sf::Mouse::Left)
+	{
+		std::cout << pos.x << ", " << pos.y << std::endl;
+		m_titleBarOnDrag = isOnTitleBar(pos);
+	}
+}
+
+void Window::onMouseMove(sf::Vector2f pos, sf::Vector2f deltaPos)
+{
+	if (m_titleBarOnDrag)
+	{
+		m_position += deltaPos;
+	}
+}
+
+void Window::onMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn)
+{
+	if (btn == sf::Mouse::Left && m_titleBarOnDrag)
+	{
+		m_titleBarOnDrag = false;
+	}
 }

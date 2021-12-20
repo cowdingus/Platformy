@@ -9,13 +9,16 @@
 class GUIRoot;
 class Container;
 
-class Widget : public sf::Drawable, public sf::Transformable, public std::enable_shared_from_this<Widget>
+class Widget : public sf::Drawable, public std::enable_shared_from_this<Widget>
 {
 public:
 	typedef std::shared_ptr<Widget> Ptr;
 	typedef std::shared_ptr<const Widget> ConstPtr;
 
 	const std::string& getName() { return m_name; }
+
+	void setPosition(sf::Vector2f position) { m_position = position; }
+	sf::Vector2f getPosition() const { return m_position; }
 
 	virtual void setSize(sf::Vector2f size) { m_size = size; }
 	sf::Vector2f getSize() const { return m_size; }
@@ -40,6 +43,7 @@ public:
 	virtual void onClick(sf::Vector2f pos, sf::Mouse::Button btn) {};
 	virtual void onMousePress(sf::Vector2f pos, sf::Mouse::Button btn) {};
 	virtual void onMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn) {};
+	virtual void onMouseMove(sf::Vector2f pos, sf::Vector2f delta) {};
 	virtual void onMouseEnter(sf::Vector2f pos) {};
 	virtual void onMouseLeave(sf::Vector2f pos) {};
 	virtual void onFocus() {};
@@ -65,18 +69,16 @@ public:
 	// internal
 	void setName(const std::string& name) { m_name = name; }
 
+	virtual ~Widget() = default;
+
 protected:
 	sf::Vector2f m_size;
+	sf::Vector2f m_position;
 
 	GUIRoot* m_root {nullptr};
 	Container* m_parent {nullptr};
 
 	std::string m_name = "_unnamed_widget";
-
-private:
-	using sf::Transformable::getRotation;
-	using sf::Transformable::setRotation;
-	using sf::Transformable::rotate;
 };
 
 template <typename T>

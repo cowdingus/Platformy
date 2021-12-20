@@ -54,7 +54,8 @@ bool Button::isOnTopOfWidget(sf::Vector2f point) const
 
 sf::FloatRect Button::getGlobalBounds() const
 {
-	return getTransform().transformRect(m_shape.getGlobalBounds());
+	// Avoided the use of sf::Transform because it also computes the rotation and scale, which is unneeded
+	return {m_position.x, m_position.y, m_shape.getGlobalBounds().width, m_shape.getGlobalBounds().height};
 }
 
 sf::FloatRect Button::getLocalBounds() const
@@ -74,7 +75,7 @@ void Button::onClick(sf::Vector2f pos, sf::Mouse::Button btn)
 
 void Button::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	states.transform *= getTransform();
+	states.transform.translate(m_position);
 
 	target.draw(m_shape, states);
 	target.draw(m_text, states);

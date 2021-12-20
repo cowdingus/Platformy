@@ -27,6 +27,7 @@ protected:
 	bool onMousePress(const sf::Event::MouseButtonEvent& e);
 	bool onMouseRelease(const sf::Event::MouseButtonEvent& e);
 	bool onTextEnter(const sf::Event::TextEvent& e);
+	bool onMouseMove(const sf::Event::MouseMoveEvent& e);
 
 	void onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget);
 	void onFocusChange(Widget::Ptr newFocus);
@@ -38,4 +39,5 @@ private:
 
 	Widget::Ptr m_currentlyPressedWidget {nullptr};
 	Widget::Ptr m_currentlyFocusedWidget {nullptr};
+	sf::Vector2f m_currentMousePosition;
 };

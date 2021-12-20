@@ -19,9 +19,27 @@ public:
 	void setRoot(class GUIRoot* root) override;
 
 	Widget::Ptr getWidgetBelowPosition(sf::Vector2f position) const;
+	Widget::Ptr getImmediateWidgetBelowPosition(sf::Vector2f position) const;
+
+	sf::Vector2f getChildWidgetsOffset() const { return m_childWidgetsOffset; }
+
+	void propagateOnClick(sf::Vector2f pos, sf::Mouse::Button btn);
+
+	void propagateOnMouseMove(sf::Vector2f pos, sf::Vector2f delta);
+	void propagateOnMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn);
+	void propagateOnMousePress(sf::Vector2f pos, sf::Mouse::Button btn);
+
+	const std::vector<Widget::Ptr>& getChildWidgets();
 
 protected:
+	std::weak_ptr<Widget> m_currentlyFocusedWidget;
+
 	std::vector<Widget::Ptr> m_subwidgets;
+	sf::Vector2f m_childWidgetsOffset;
+
+	// Calculates the mouse position in the subwidget space coordinate system
+	// (it calculates the mouse position in consideration of m_childWidgetsOffset)
+	sf::Vector2f toSubwidgetSpace(sf::Vector2f position) const;
 };
 
 inline bool Container::isContainer() const

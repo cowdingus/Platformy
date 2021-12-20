@@ -18,6 +18,16 @@ set_target_properties(
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
+include(FetchContent)
+
+FetchContent_Declare(
+	spdlog
+	GIT_REPOSITORY https://github.com/gabime/spdlog.git
+	GIT_TAG        v1.9.2
+)
+
+FetchContent_MakeAvailable(spdlog)
+
 find_package(SFML 2.5 COMPONENTS system window graphics REQUIRED)
 
 target_include_directories(
@@ -31,4 +41,5 @@ target_link_libraries(
 	sfml-graphics
 	sfml-window
 	sfml-system
+	spdlog::spdlog
 	)
