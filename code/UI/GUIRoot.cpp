@@ -1,6 +1,7 @@
 #include "UI/GUIRoot.hpp"
 
 #include "UI/Container.hpp"
+#include "UI/Event.hpp"
 #include "UI/Exceptions/NoSuchWidgetException.hpp"
 
 #include <iostream>
@@ -138,6 +139,8 @@ bool GUIRoot::onMouseMove(const sf::Event::MouseMoveEvent& e)
 void GUIRoot::onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget)
 {
 	widget->onClick(pos, btn);
+
+	widget->onEvent({"click", {Event::Click{pos,btn}}});
 }
 
 void GUIRoot::onFocusChange(Widget::Ptr widgetToFocus)

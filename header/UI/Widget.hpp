@@ -1,5 +1,7 @@
 #pragma once
 
+#include "UI/Event.hpp"
+
 #include <SFML/Graphics.hpp>
 
 #include <type_traits>
@@ -50,6 +52,30 @@ public:
 	virtual void onOutOfFocus() {};
 	virtual void onTextEnter(sf::Uint32 unicode) {};
 
+	typedef std::function<void(Event)> EventListener;
+	typedef size_t EventListenerHandle;
+
+	/*
+	 * @brief Adds event listener
+	 * @throws noexcept
+	 */
+	EventListenerHandle addEventListener(const std::string& eventName, const EventListener& callback);
+
+	/*
+	 * @brief Removes event listener with handle of `handle`
+	 * @throws
+	 *   out_of_range: if EventListenerMap of `eventName` does not exist
+	 *   runtime_error:
+	 *     if EventListenerMap of `eventName` does not contain
+	 *     EventListener with handle of `handle`
+	 */
+	void removeEventListener(const std::string& eventName, EventListenerHandle handle);
+
+	/*
+	 * @brief
+	 */
+	void onEvent(Event event);
+
 	// internal
 	virtual void onAttachToRoot() {};
 	virtual void onDetachFromRoot() {};
@@ -79,6 +105,18 @@ protected:
 	Container* m_parent {nullptr};
 
 	std::string m_name = "_unnamed_widget";
+
+	using EventListenerMap = std::unordered_map<size_t, EventListener>;
+
+	/*
+	 * @brief Gets a reference to EventListener with handle of `handle`
+	 * @throws
+	 *   out_of_range: if EventListener with handle of `handle` wasn't found
+	 */
+	EventListener& getEventListener(const std::string& eventName, EventListenerHandle handle);
+
+	std::size_t m_lastEventListenerIndex = 0;
+	std::unordered_map<std::string, EventListenerMap> m_eventListenerMaps;
 };
 
 template <typename T>

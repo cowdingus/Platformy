@@ -137,6 +137,11 @@ int main()
         });
         button->setOnClick([](){std::cout << "simple_button clicked" << std::endl;});
 
+        button->addEventListener(
+            "click",
+            [](Event event){std::cout << "simple_button event clicked" << std::endl;}
+            );
+
         window->add(button, "simple_button");
     }
 
