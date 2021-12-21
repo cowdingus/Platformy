@@ -71,22 +71,26 @@ bool GUIRoot::onMousePress(const sf::Event::MouseButtonEvent& e)
 {
 	auto pos = m_window->mapPixelToCoords({e.x, e.y});
 
-	m_currentlyPressedWidget = getWidgetBelowPosition(pos);
-
-	if (!m_currentlyPressedWidget) return false;
-
-	m_currentlyPressedWidget->onMousePress(pos, e.button);
-
-	if (m_currentlyPressedWidget->isContainer())
+	if ((m_currentlyPressedWidget = getWidgetBelowPosition(pos)))
 	{
-		std::static_pointer_cast<Container>(m_currentlyPressedWidget)->propagateOnMousePress(pos, e.button);
+		pos -= m_currentlyPressedWidget->getPosition();
+
+		m_currentlyPressedWidget->onMousePress(pos, e.button);
+
+		if (m_currentlyPressedWidget->isContainer())
+		{
+			std::static_pointer_cast<Container>(m_currentlyPressedWidget)->propagateOnMousePress(pos, e.button);
+		}
+
+		std::cout << "[GUIRoot::onMousePress]: Press, onWidget: " << m_currentlyPressedWidget << std::endl;
+
+		if (m_currentlyPressedWidget != m_currentlyFocusedWidget)
+			onFocusChange(m_currentlyPressedWidget);
+
+		return true;
 	}
 
-	std::cout << "[GUIRoot::onMousePress]: Press, onWidget: " << m_currentlyPressedWidget << std::endl;
-
-	if (m_currentlyPressedWidget != m_currentlyFocusedWidget) onFocusChange(m_currentlyPressedWidget);
-
-	return static_cast<bool>(m_currentlyPressedWidget);
+	return false;
 }
 
 bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)

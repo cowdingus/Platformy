@@ -203,6 +203,9 @@ void Container::propagateOnMouseMove(sf::Vector2f pos, sf::Vector2f delta)
 
 void Container::propagateOnMousePress(sf::Vector2f pos, sf::Mouse::Button btn)
 {
+	// TODO(zndf): Fix toSubwidgetSpace to not subtract m_position in its calculation
+	// onMousePress(pos, btn);
+
 	// Convert the position from this' coordinate space to subwidget space
 	// coordinate space (in consideration of getChildWidgetsOffset)
 	pos = toSubwidgetSpace(pos);
@@ -213,7 +216,7 @@ void Container::propagateOnMousePress(sf::Vector2f pos, sf::Mouse::Button btn)
 	{
 		// Convert the subwidget space coordinate space to the target coordinate
 		// space
-		pos -= {widgetBelow->getPosition().x, widgetBelow->getPosition().y};
+		pos -= widgetBelow->getPosition();
 
 		widgetBelow->onMousePress(pos, btn);
 

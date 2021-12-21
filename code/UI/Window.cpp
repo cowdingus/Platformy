@@ -112,8 +112,6 @@ bool Window::isOnTitleBar(sf::Vector2f pos) const
 
 void Window::onMousePress(sf::Vector2f pos, sf::Mouse::Button btn)
 {
-	pos -= m_position;
-	// TODO(zndf): Fix this not called
 	if (btn == sf::Mouse::Left)
 	{
 		std::cout << pos.x << ", " << pos.y << std::endl;
