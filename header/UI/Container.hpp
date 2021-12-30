@@ -23,16 +23,25 @@ public:
 
 	sf::Vector2f getChildWidgetsOffset() const { return m_childWidgetsOffset; }
 
-	void propagateOnClick(sf::Vector2f pos, sf::Mouse::Button btn);
+	bool propagateTextEnter(uint32_t unicode);
 
-	void propagateOnMouseMove(sf::Vector2f pos, sf::Vector2f delta);
-	void propagateOnMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn);
-	void propagateOnMousePress(sf::Vector2f pos, sf::Mouse::Button btn);
+	void propagateOnFocus();
+	void propagateOnOutOfFocus();
+
+	void propagateMouseMove(sf::Vector2f pos, sf::Vector2f delta);
+	bool propagateMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn);
+	bool propagateMousePress(sf::Vector2f pos, sf::Mouse::Button btn);
 
 	const std::vector<Widget::Ptr>& getChildWidgets();
 
 protected:
+	bool shouldChangeFocus(Widget::Ptr widget);
+	void changeFocusTo(Widget::Ptr widget);
+
+	bool shouldFireClickEvent(Widget::Ptr widget);
+
 	std::weak_ptr<Widget> m_currentlyFocusedWidget;
+	std::weak_ptr<Widget> m_previouslyPressedWidget;
 
 	std::vector<Widget::Ptr> m_subwidgets;
 	sf::Vector2f m_childWidgetsOffset;

@@ -3,6 +3,7 @@
 #include "UI/GUIRoot.hpp"
 #include "UI/Exceptions/NoSuchWidgetException.hpp"
 
+#include <iostream>
 #include <spdlog/spdlog.h>
 
 #include <memory>
@@ -154,7 +155,7 @@ sf::Vector2f Container::toSubwidgetSpace(sf::Vector2f position) const
 {
 	const auto& offset = getChildWidgetsOffset();
 
-	return position - m_position - offset;
+	return position - offset;
 }
 
 const std::vector<Widget::Ptr>& Container::getChildWidgets()
@@ -162,94 +163,154 @@ const std::vector<Widget::Ptr>& Container::getChildWidgets()
 	return m_subwidgets;
 }
 
-void Container::propagateOnClick(sf::Vector2f pos, sf::Mouse::Button btn)
+bool Container::propagateTextEnter(uint32_t unicode)
 {
-	// Convert the position from this' coordinate space to subwidget space
-	// coordinate space (in consideration of getChildWidgetsOffset)
-	pos = toSubwidgetSpace(pos);
-
-	if (auto widgetBelow = getImmediateWidgetBelowPosition(pos))
+	if (auto focusedWidget = m_currentlyFocusedWidget.lock(); focusedWidget)
 	{
-		// Convert the subwidget space coordinate space to the target coordinate
-		// space
-		pos -= {widgetBelow->getPosition().x, widgetBelow->getPosition().y};
+		focusedWidget->onTextEnter(unicode);
 
-		widgetBelow->onClick(pos, btn);
+		if (focusedWidget->isContainer())
+		{
+			const auto& container = std::static_pointer_cast<Container>(focusedWidget);
+			container->propagateTextEnter(unicode);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void Container::propagateOnFocus()
+{
+	if (auto focusedWidget = m_currentlyFocusedWidget.lock(); focusedWidget)
+	{
+		focusedWidget->onFocus();
+
+		if (focusedWidget->isContainer())
+		{
+			const auto& container = std::static_pointer_cast<Container>(focusedWidget);
+			container->propagateOnFocus();
+		}
 	}
 }
 
-void Container::propagateOnMouseMove(sf::Vector2f pos, sf::Vector2f delta)
+void Container::propagateOnOutOfFocus()
 {
-	// Convert the position from this' coordinate space to subwidget space
-	// coordinate space (in consideration of getChildWidgetsOffset)
+	if (auto focusedWidget = m_currentlyFocusedWidget.lock(); focusedWidget)
+	{
+		focusedWidget->onOutOfFocus();
+
+		if (focusedWidget->isContainer())
+		{
+			const auto& container = std::static_pointer_cast<Container>(focusedWidget);
+			container->propagateOnOutOfFocus();
+		}
+	}
+}
+
+void Container::propagateMouseMove(sf::Vector2f pos, sf::Vector2f delta)
+{
 	pos = toSubwidgetSpace(pos);
 
-	// Tell all the subwidgets about the mouse move change
 	for (const auto& subwidget : m_subwidgets)
 	{
-		// Notice the widget of the mouse move
-		pos -= {subwidget->getPosition().x, subwidget->getPosition().y};
-		subwidget->onMouseMove(pos, delta);
+		subwidget->onMouseMove(subwidget->toLocal(pos), delta);
 
-		// Notice the subwidgets of the widget if it's a container
 		if (subwidget->isContainer())
 		{
 			const auto& container = std::static_pointer_cast<Container>(subwidget);
-			container->propagateOnMouseMove(pos, delta);
-		}
-	}
-
-}
-
-void Container::propagateOnMousePress(sf::Vector2f pos, sf::Mouse::Button btn)
-{
-	// TODO(zndf): Fix toSubwidgetSpace to not subtract m_position in its calculation
-	// onMousePress(pos, btn);
-
-	// Convert the position from this' coordinate space to subwidget space
-	// coordinate space (in consideration of getChildWidgetsOffset)
-	pos = toSubwidgetSpace(pos);
-
-	// Tell the target widget about the mouse press (since mouse press is a
-	// targeting event)
-	if (auto widgetBelow = getImmediateWidgetBelowPosition(pos))
-	{
-		// Convert the subwidget space coordinate space to the target coordinate
-		// space
-		pos -= widgetBelow->getPosition();
-
-		widgetBelow->onMousePress(pos, btn);
-
-		// Notice the subwidgets of the widget if it's a container
-		if (widgetBelow->isContainer())
-		{
-			const auto& container = std::static_pointer_cast<Container>(widgetBelow);
-			container->propagateOnMousePress(pos, btn);
+			container->propagateMouseMove(subwidget->toLocal(pos), delta);
 		}
 	}
 }
 
-void Container::propagateOnMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn)
+bool Container::propagateMousePress(sf::Vector2f pos, sf::Mouse::Button btn)
 {
-	// Convert the position from this' coordinate space to subwidget space
-	// coordinate space (in consideration of getChildWidgetsOffset)
 	pos = toSubwidgetSpace(pos);
 
-	// Tell the target widget about the mouse press (since mouse release is a
-	// targeting event)
-	if (auto widgetBelow = getImmediateWidgetBelowPosition(pos))
+	for (const auto& subwidget : m_subwidgets)
 	{
-		// Convert the subwidget space coordinate space to the target coordinate
-		// space
-		pos -= {widgetBelow->getPosition().x, widgetBelow->getPosition().y};
-
-		widgetBelow->onMouseRelease(pos, btn);
-
-		// Notice the subwidgets of the widget if it's a container
-		if (widgetBelow->isContainer())
+		if (subwidget->isOnTopOfWidget(pos))
 		{
-			const auto& container = std::static_pointer_cast<Container>(widgetBelow);
-			container->propagateOnMouseRelease(pos, btn);
+			subwidget->onMousePress(subwidget->toLocal(pos), btn);
+
+			if (shouldChangeFocus(subwidget))
+			{
+				changeFocusTo(subwidget);
+			}
+
+			if (subwidget->isContainer())
+			{
+				const auto& container = std::static_pointer_cast<Container>(subwidget);
+				container->propagateMousePress(subwidget->toLocal(pos), btn);
+			}
+
+			m_previouslyPressedWidget = subwidget;
+			return true;
 		}
 	}
+
+	return false;
+}
+
+bool Container::propagateMouseRelease(sf::Vector2f pos, sf::Mouse::Button btn)
+{
+	pos = toSubwidgetSpace(pos);
+
+	for (const auto& subwidget : m_subwidgets)
+	{
+		if (subwidget->isOnTopOfWidget(pos))
+		{
+			subwidget->onMouseRelease(subwidget->toLocal(pos), btn);
+
+			if (shouldFireClickEvent(subwidget))
+			{
+				std::cout << "Firing on click event" << std::endl;
+				subwidget->onClick(subwidget->toLocal(pos), btn);
+			}
+
+			if (subwidget->isContainer())
+			{
+				const auto& container = std::static_pointer_cast<Container>(subwidget);
+				container->propagateMouseRelease(subwidget->toLocal(pos), btn);
+			}
+
+			m_previouslyPressedWidget.reset();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Container::changeFocusTo(Widget::Ptr widget)
+{
+	auto currentlyFocusedWidget = m_currentlyFocusedWidget.lock();
+
+	if (currentlyFocusedWidget)
+	{
+		currentlyFocusedWidget->onOutOfFocus();
+	}
+
+	m_currentlyFocusedWidget = widget;
+
+	if (widget)
+	{
+		widget->onFocus();
+	}
+}
+
+bool Container::shouldChangeFocus(Widget::Ptr widget)
+{
+	auto previouslyPressedWidget = m_previouslyPressedWidget.lock();
+
+	return previouslyPressedWidget != widget;
+}
+
+bool Container::shouldFireClickEvent(Widget::Ptr widget)
+{
+	auto previouslyPressedWidget = m_previouslyPressedWidget.lock();
+
+	return previouslyPressedWidget == widget;
 }

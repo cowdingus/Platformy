@@ -22,22 +22,19 @@ public:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 protected:
-	Widget::Ptr getWidgetBelowPosition(sf::Vector2f mousePosition);
-
+	// Primitive Events
+	// Primitive events are broadcasted to every widgets in the widget tree
 	bool onMousePress(const sf::Event::MouseButtonEvent& e);
 	bool onMouseRelease(const sf::Event::MouseButtonEvent& e);
-	bool onTextEnter(const sf::Event::TextEvent& e);
 	bool onMouseMove(const sf::Event::MouseMoveEvent& e);
-
-	void onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget);
-	void onFocusChange(Widget::Ptr newFocus);
+	bool onTextEnter(const sf::Event::TextEvent& e);
+	bool onKeyPress(const sf::Event::KeyEvent& e);
+	bool onKeyRelease(const sf::Event::KeyEvent& e);
 
 private:
 	Group m_container;
 
 	sf::RenderTarget* m_window {nullptr};
 
-	Widget::Ptr m_currentlyPressedWidget {nullptr};
-	Widget::Ptr m_currentlyFocusedWidget {nullptr};
-	sf::Vector2f m_currentMousePosition;
+	sf::Vector2f m_previousMousePosition;
 };

@@ -51,6 +51,10 @@ bool GUIRoot::handleEvent(const sf::Event& event)
 			return onTextEnter(event.text);
 		case sf::Event::MouseMoved:
 			return onMouseMove(event.mouseMove);
+		case sf::Event::KeyPressed:
+			return onKeyPress(event.key);
+		case sf::Event::KeyReleased:
+			return onKeyRelease(event.key);
 		default: break;
 	}
 
@@ -62,114 +66,46 @@ void GUIRoot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	target.draw(m_container, states);
 }
 
-Widget::Ptr GUIRoot::getWidgetBelowPosition(sf::Vector2f position)
-{
-	return m_container.getWidgetBelowPosition(position);
-}
-
 bool GUIRoot::onMousePress(const sf::Event::MouseButtonEvent& e)
 {
 	auto pos = m_window->mapPixelToCoords({e.x, e.y});
 
-	if ((m_currentlyPressedWidget = getWidgetBelowPosition(pos)))
-	{
-		pos -= m_currentlyPressedWidget->getPosition();
+	auto currentlyPressedWidget = m_container.getWidgetBelowPosition(pos);
 
-		m_currentlyPressedWidget->onMousePress(pos, e.button);
-
-		if (m_currentlyPressedWidget->isContainer())
-		{
-			std::static_pointer_cast<Container>(m_currentlyPressedWidget)->propagateOnMousePress(pos, e.button);
-		}
-
-		std::cout << "[GUIRoot::onMousePress]: Press, onWidget: " << m_currentlyPressedWidget << std::endl;
-
-		if (m_currentlyPressedWidget != m_currentlyFocusedWidget)
-			onFocusChange(m_currentlyPressedWidget);
-
-		return true;
-	}
-
-	return false;
+	return m_container.propagateMousePress(m_container.toLocal(pos), e.button);
 }
 
 bool GUIRoot::onMouseRelease(const sf::Event::MouseButtonEvent& e)
 {
 	auto pos = m_window->mapPixelToCoords({e.x, e.y});
 
-	// Trigger onClick
-	auto onWidget = getWidgetBelowPosition(pos);
-	if (m_currentlyPressedWidget && m_currentlyPressedWidget == onWidget)
-	{
-		onClick(pos, e.button, m_currentlyPressedWidget);
-	}
+	auto theWidgetBelow = m_container.getWidgetBelowPosition(pos);
 
-	// Propagate onMouseRelease
-	m_container.propagateOnMouseRelease(pos, e.button);
-
-	m_currentlyPressedWidget = {nullptr};
-
-	std::cout << "[GUIRoot::onMouseRelease]: Release, onWidget: " << onWidget << std::endl;
-
-	return static_cast<bool>(onWidget);
-}
-
-bool GUIRoot::onTextEnter(const sf::Event::TextEvent& e)
-{
-	if (m_currentlyFocusedWidget)
-	{
-		std::cout << "[GUIRoot::onTextEnter]: Enter, onWidget: " << m_currentlyFocusedWidget
-			<< " unicode: " << e.unicode << std::endl;
-		m_currentlyFocusedWidget->onTextEnter(e.unicode);
-		return true;
-	}
-
-	return false;
+	return m_container.propagateMouseRelease(m_container.toLocal(pos), e.button);
 }
 
 bool GUIRoot::onMouseMove(const sf::Event::MouseMoveEvent& e)
 {
-	auto deltaPos = m_window->mapPixelToCoords({e.x, e.y}) - m_currentMousePosition;
-	m_currentMousePosition = m_window->mapPixelToCoords({e.x, e.y});
+	auto pos = m_window->mapPixelToCoords({e.x, e.y});
 
-	std::cout << "[GUIRoot::onMouseMove]: Move, newPos: " << e.x << ", " << e.y << std::endl;
+	m_container.propagateMouseMove(m_container.toLocal(pos), pos - m_previousMousePosition);
 
-	m_container.onMouseMove(m_currentMousePosition, deltaPos);
-	m_container.propagateOnMouseMove(m_currentMousePosition, deltaPos);
+	m_previousMousePosition = pos;
 
 	return false;
 }
 
-void GUIRoot::onClick(sf::Vector2f pos, sf::Mouse::Button btn, Widget::Ptr widget)
+bool GUIRoot::onTextEnter(const sf::Event::TextEvent& e)
 {
-	widget->onClick(pos, btn);
-
-	widget->onEvent({"click", {Event::Click{pos,btn}}});
+	return m_container.propagateTextEnter(e.unicode);
 }
 
-void GUIRoot::onFocusChange(Widget::Ptr widgetToFocus)
+bool GUIRoot::onKeyPress(const sf::Event::KeyEvent& e)
 {
-	// TODO(zndf): Fix the edge case when currently focused widget became unfocusable
 
-	// Clear focus if user pressed the void or a unfocusable widget
-	if (!widgetToFocus || !widgetToFocus->focusable())
-	{
-		if (m_currentlyFocusedWidget) m_currentlyFocusedWidget->onOutOfFocus();
-		m_currentlyFocusedWidget = nullptr;
-		std::cout << "[GUIRoot::onFocusChange]: Unfocused" << std::endl;
-	}
+}
 
-	// Change focus if pressed widget is not the same widget as the currently focused one
-	// and it is focusable
-	if (m_currentlyFocusedWidget != widgetToFocus && widgetToFocus->focusable())
-	{
-		auto m_previouslyFocusedWidget = m_currentlyFocusedWidget;
+bool GUIRoot::onKeyRelease(const sf::Event::KeyEvent& e)
+{
 
-		if (m_currentlyFocusedWidget) m_currentlyFocusedWidget->onOutOfFocus();
-		m_currentlyFocusedWidget = widgetToFocus;
-		m_currentlyFocusedWidget->onFocus();
-
-		std::cout << "[GUIRoot::onFocusChange]: Changed focus, from: "
-			<< m_previouslyFocusedWidget << " to: " << m_currentlyFocusedWidget << std::endl;
-	}
 }

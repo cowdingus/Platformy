@@ -22,6 +22,8 @@ public:
 	void setPosition(sf::Vector2f position) { m_position = position; }
 	sf::Vector2f getPosition() const { return m_position; }
 
+	sf::Vector2f toLocal(sf::Vector2f v) const { return v - m_position; }
+
 	virtual void setSize(sf::Vector2f size) { m_size = size; }
 	sf::Vector2f getSize() const { return m_size; }
 
