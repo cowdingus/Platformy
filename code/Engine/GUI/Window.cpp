@@ -1,8 +1,8 @@
-#include "UI/Window.hpp"
+#include "Engine/GUI/Window.hpp"
 
-#include "UI/Button.hpp"
-#include "UI/Defaults.hpp"
-#include "UI/GUIRoot.hpp"
+#include "Engine/GUI/Button.hpp"
+#include "Engine/GUI/Defaults.hpp"
+#include "Engine/GUI/GUIRoot.hpp"
 #include <iostream>
 
 Window::Window()

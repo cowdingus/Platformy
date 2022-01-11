@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/Event.hpp"
+#include "Engine/GUI/Event.hpp"
 
 #include <SFML/Graphics.hpp>
 

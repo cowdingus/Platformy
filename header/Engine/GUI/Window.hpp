@@ -1,8 +1,8 @@
 #pragma once
 
-#include "UI/Container.hpp"
-#include "UI/Widget.hpp"
-#include "UI/Button.hpp"
+#include "Engine/GUI/Container.hpp"
+#include "Engine/GUI/Widget.hpp"
+#include "Engine/GUI/Button.hpp"
 
 #include <unordered_map>
 

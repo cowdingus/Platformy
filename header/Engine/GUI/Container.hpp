@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/Widget.hpp"
+#include "Engine/GUI/Widget.hpp"
 
 class Container : public Widget
 {

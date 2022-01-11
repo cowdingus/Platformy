@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Widget.hpp"
-#include "UI/Group.hpp"
+#include "Engine/GUI/Group.hpp"
 
 #include <vector>
 #include <string>

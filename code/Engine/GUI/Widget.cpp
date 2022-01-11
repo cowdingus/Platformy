@@ -1,4 +1,4 @@
-#include "UI/Widget.hpp"
+#include "Engine/GUI/Widget.hpp"
 
 #include <sstream>
 #include <stdexcept>

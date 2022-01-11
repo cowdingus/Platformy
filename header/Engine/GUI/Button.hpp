@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UI/Widget.hpp"
+#include "Engine/GUI/Widget.hpp"
 #include <unordered_map>
 
 class Button : public Widget

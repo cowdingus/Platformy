@@ -1,11 +1,12 @@
-#include "Data/BlockDescriptor.hpp"
-#include "Data/TextureAtlas.hpp"
-#include "Data/World.hpp"
+#include "Engine/Core/BlockDescriptor.hpp"
+#include "Engine/Core/TextureAtlas.hpp"
+#include "Engine/Core/World.hpp"
 
-#include "UI/Button.hpp"
-#include "UI/GUIRoot.hpp"
-#include "UI/Window.hpp"
-#include "json.hpp"
+#include "Engine/GUI/Button.hpp"
+#include "Engine/GUI/GUIRoot.hpp"
+#include "Engine/GUI/Window.hpp"
+
+#include "Engine/Core/JSONSerializer.hpp"
 
 #include <SFML/Graphics.hpp>
 

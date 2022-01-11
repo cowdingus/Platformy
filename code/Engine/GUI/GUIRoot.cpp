@@ -1,8 +1,8 @@
-#include "UI/GUIRoot.hpp"
+#include "Engine/GUI/GUIRoot.hpp"
 
-#include "UI/Container.hpp"
-#include "UI/Event.hpp"
-#include "UI/Exceptions/NoSuchWidgetException.hpp"
+#include "Engine/GUI/Container.hpp"
+#include "Engine/GUI/Event.hpp"
+#include "Engine/GUI/Exceptions/NoSuchWidgetException.hpp"
 
 #include <iostream>
 #include <memory>

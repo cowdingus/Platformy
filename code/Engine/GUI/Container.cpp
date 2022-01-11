@@ -1,7 +1,7 @@
-#include "UI/Container.hpp"
+#include "Engine/GUI/Container.hpp"
 
-#include "UI/GUIRoot.hpp"
-#include "UI/Exceptions/NoSuchWidgetException.hpp"
+#include "Engine/GUI/GUIRoot.hpp"
+#include "Engine/GUI/Exceptions/NoSuchWidgetException.hpp"
 
 #include <iostream>
 #include <spdlog/spdlog.h>

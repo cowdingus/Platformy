@@ -1,4 +1,4 @@
-#include "UI/Event.hpp"
+#include "Engine/GUI/Event.hpp"
 
 Event::Event(const std::string& name, EventVariant&& data)
 	: m_name(name), m_data(data)
